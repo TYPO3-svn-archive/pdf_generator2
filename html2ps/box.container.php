@@ -653,8 +653,7 @@ class GenericContainerBox extends GenericFormattedBox {
         $baselined[] =& $this->_line[$i];
 
         $baseline = max($baseline, 
-                        $this->_line[$i]->default_baseline,
-                        $this->_line[$i]->get_ascender());
+                        $this->_line[$i]->default_baseline);
       };
     };
 
@@ -761,10 +760,18 @@ class GenericContainerBox extends GenericFormattedBox {
 
       // Note that we're using the colapsed margin value to get the Y coordinate to extend height to,
       // as bottom margin may be collapsed with parent
-      $this->extend_height($line_element->get_bottom_margin() + $context->get_collapsed_margin());
 
-      $line_bottom = min($line_element->get_bottom_margin(), 
-                         $line_bottom);
+      $effective_bottom = 
+        $line_element->get_top() - 
+        $line_element->get_height();
+
+      $this->extend_height($effective_bottom);
+      $line_bottom = min($effective_bottom, $line_bottom);
+
+//       $this->extend_height($line_element->get_bottom_margin() + $context->get_collapsed_margin());
+
+//       $line_bottom = min($line_element->get_bottom_margin(), 
+//                          $line_bottom);
     }
 
     $this->extend_height($line_bottom);
@@ -845,7 +852,6 @@ class GenericContainerBox extends GenericFormattedBox {
       $child =& $this->content[$i];
       $child->reflow($this, $context);
     };
-
     $this->close_line($context, true);
 
     if ($this->overflow !== OVERFLOW_VISIBLE) {

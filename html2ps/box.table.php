@@ -7,6 +7,9 @@ class CellSpan {
   var $size;
 }
 
+/**
+ * It is assumed that every row contains at least one cell
+ */
 class TableBox extends GenericContainerBox {
   var $cwc;
 
@@ -27,7 +30,7 @@ class TableBox extends GenericContainerBox {
   function append_line(&$e) {}
 
   function &create(&$root, &$pipeline) {
-    $box =& new TableBox($root, $pipeline);
+    $box =& new TableBox($root, $pipeline);   
     return $box;
   }
 
@@ -275,9 +278,24 @@ class TableBox extends GenericContainerBox {
     };
   }
 
+  /**
+   * Normalize table by adding fake cells for colspans and rowspans
+   * Also, if there is any empty rows (without cells), add at least one fake cell
+   */
   function normalize() {
-    // Normalize table by adding fake cells for colspans and rowspans
-    // first, normalize colspans
+    /**
+     * Fix empty rows by adding a fake cell
+     */
+    for ($i=0; $i<count($this->content); $i++) {
+      $row =& $this->content[$i];
+      if (count($row->content) == 0) {
+        $this->content[$i]->add_fake_cell_before(0);
+      };
+    };
+
+    /**
+     * first, normalize colspans 
+     */
     for ($i=0; $i<count($this->content); $i++) {
       $this->content[$i]->normalize();
     };
@@ -399,17 +417,16 @@ class TableBox extends GenericContainerBox {
 
       // now check if cell height is less than sum of spanned rows heights
       $row_heights = array_slice($heights, $span->row, $span->size);
+
+      // Vertical-align current cell 
+      // calculate (approximate) row baseline
+      $baseline = $this->content[$span->row]->get_row_baseline();
+
+      // apply vertical-align
+      $va_fun = CSSVerticalAlign::value2pdf($cell->vertical_align);
+      $va_fun->apply_cell($cell, array_sum($row_heights), $baseline);       
       
       if (array_sum($row_heights) > $cell->get_full_height()) {
-        // Vertical-align current cell 
-        // calculate (approximate) row baseline
-        $baseline = $this->content[$span->row]->get_row_baseline();
-
-        // apply vertical-align
-        $va_fun = CSSVerticalAlign::value2pdf($cell->vertical_align);
-
-        $va_fun->apply_cell($cell, array_sum($row_heights), $baseline);       
-
         // Make cell fill all available vertical space
         $cell->put_full_height(array_sum($row_heights));
       };
@@ -428,51 +445,101 @@ class TableBox extends GenericContainerBox {
 
   // ROW-RELATED
 
-  // Calculate set of row heights 
-  //
-  // @param $minheight the minimal allowed height of the row; as we'll need to expand rows later
-  // and rows containing totally empty cells will have zero height
-  // @return array of row heights in media points
-  // 
+  /**
+   * Calculate set of row heights 
+   *
+   * At the moment (*), we have a sum of total content heights of percentage constraned rows in
+   * $ch variable, and a "free" (e.g. table height - sum of all non-percentage constrained heights) height
+   * in the $h variable. Obviously, percentage-constrained rows should be expanded to fill the free space
+   *
+   * On the other size, there should be a maximal value to expand them to; for example, if sum of 
+   * percentage constraints is 33%, then all these rows should fill only 1/3 of the table height, 
+   * whatever the content height of other rows is. In this case, other (non-constrained) rows 
+   * should be expanded to fill space left.
+   *
+   * In the latter case, if there's no non-constrained rows, the additional space should be filled by 
+   * "plain" rows without any constraints
+   *
+   * @param $minheight the minimal allowed height of the row; as we'll need to expand rows later
+   * and rows containing totally empty cells will have zero height
+   * @return array of row heights in media points
+   */
   function _row_heights($minheight) {
     $heights = array();
     $cheights = array();
-   
+    $height = $this->get_height();
+    
+    // Calculate "content" and "constrained" heights of table rows
+    
     for ($i=0; $i<count($this->content); $i++) {
-      //      $heights[] = max($minheight,$this->table_row_height($i));
       $heights[] = max($minheight, $this->content[$i]->row_height());
 
       // Apply row height constraint
       // we need to specify box which parent will serve as a base for height calculation;
-      //
-      $hc = $this->get_rhc($i);
 
-      /**
-       * Note that here we may pass 'null' as the third parameter
-       * to the 'apply' call, the it is guaranteed that 
-       * 
-       */
+      $hc = $this->get_rhc($i);
       $cheights[] = $hc->apply($heights[$i], $this->content[$i], null);
     };
 
-    // Now adjust percentage-constrained rows;
-    $flags = $this->get_non_percentage_constrained_height_flags();
+    // Collapse "constrained" heights of percentage-constrained rows, if they're
+    // taking more that available space
 
-    $h = $this->get_height();
+    $flags = $this->get_non_percentage_constrained_height_flags();
+    $h = $height;
     $ch = 0;
-    
     for ($i=0; $i<count($heights); $i++) {
       if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
     };
-
+    // (*) see note in the function description
     if ($ch > 0) {
       $scale = $h / $ch;
       
-      for ($i=0; $i<count($heights); $i++) {
-        if (!$flags[$i]) { $cheights[$i] *= $scale; };
+      if ($scale < 1) {
+        for ($i=0; $i<count($heights); $i++) {
+          if (!$flags[$i]) { $cheights[$i] *= $scale; };
+        };
       };
     };
 
+    // Expand non-constrained rows, if there's free space still
+
+    $flags = $this->get_non_constrained_height_flags();
+    $h = $height;
+    $ch = 0;
+    for ($i=0; $i<count($cheights); $i++) {
+      if (!$flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
+    };
+    // (*) see note in the function description
+    if ($ch > 0) {
+      $scale = $h / $ch;
+      
+      if ($scale < 1) {
+        for ($i=0; $i<count($heights); $i++) {
+          if ($flags[$i]) { $cheights[$i] *= $scale; };
+        };
+      };
+    };
+
+    // Expand percentage-constrained rows, if there's free space still
+    
+    $flags = $this->get_non_percentage_constrained_height_flags();
+    $h = $height;
+    $ch = 0;
+    for ($i=0; $i<count($cheights); $i++) {
+      if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
+    };
+    // (*) see note in the function description
+    if ($ch > 0) {
+      $scale = $h / $ch;
+      
+      if ($scale < 1) {
+        for ($i=0; $i<count($heights); $i++) {
+          if (!$flags[$i]) { $cheights[$i] *= $scale; };
+        };
+      };
+    };
+
+    // Get the actual row height
     for ($i=0; $i<count($heights); $i++) {
       $heights[$i] = max($heights[$i], $cheights[$i]);
     };
@@ -562,6 +629,10 @@ class TableBox extends GenericContainerBox {
   //
   function get_min_width(&$context) {
     $widths = $this->get_table_columns_min_widths($context);
+    $maxw = $this->get_table_columns_max_widths($context);
+
+    // Expand some columns to fit colspanning cells
+    $widths = $this->_table_apply_colspans($widths, $context, 'get_min_width', $widths, $maxw);
 
     $width = array_sum($widths);
     $base_width = $width;
@@ -746,7 +817,6 @@ class TableBox extends GenericContainerBox {
       }
     }
 
-    // TODO: colspans
     return $widths;
   }
 
@@ -1023,8 +1093,11 @@ class TableBox extends GenericContainerBox {
 
     if (!is_a($this->_width_constraint, "WCNone")) {
       $col_width = $this->get_table_columns_min_widths($context);
+      $maxw      = $this->get_table_columns_max_widths($context);
+      $col_width = $this->_table_apply_colspans($col_width, $context, 'get_min_width', $col_width, $maxw);
+
       if (array_sum($col_width) > $this->get_width()) {
-        $this->_width_constraint = new WCNone;
+        $this->_width_constraint = new WCConstant(array_sum($col_width));
       };
     };
 
@@ -1045,7 +1118,7 @@ class TableBox extends GenericContainerBox {
     
     // Terminate current parent line-box 
     $parent->close_line($context);
-    
+   
     // And add current box to the parent's line-box (alone)
     $parent->append_line($this);
 
@@ -1116,6 +1189,20 @@ class TableBox extends GenericContainerBox {
         (($hc->constant !== null) ? !$hc->constant[1] : true) &&
         (($hc->min      !== null) ? !$hc->min[1]      : true) &&
         (($hc->max      !== null) ? !$hc->max[1]      : true);
+    };
+
+    return $flags;
+  }
+
+  function get_non_constrained_height_flags() {
+    $flags = array();
+
+    for ($i=0; $i<count($this->content); $i++) {
+      $hc = $this->get_rhc($i);
+      $flags[$i] = 
+        ($hc->constant == null) &&
+        ($hc->min      == null) &&
+        ($hc->max      == null);
     };
 
     return $flags;

@@ -22,7 +22,7 @@ class InlineControlBox extends InlineBox {
 
   function line_break_allowed() { return false; }
   
-  function reflow(&$parent, &$context) {  
+  function reflow_static(&$parent, &$context) {  
     GenericFormattedBox::reflow($parent, $context);
     
     // Determine the box width

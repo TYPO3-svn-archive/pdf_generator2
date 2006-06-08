@@ -6,7 +6,7 @@
  */
 
 // Directory containing HTML2PS script files (without traling slash)
-define('HTML2PS_DIR', dirname(isset($_SERVER['PATH_TRANSLATED']) ? $_SERVER['PATH_TRANSLATED'] : __FILE__));
+define('HTML2PS_DIR', dirname(__FILE__));
 
 // User-Agent HTTP header to sent when requesting a file
 define('DEFAULT_USER_AGENT',"Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7) Gecko/20040803 Firefox/0.9.3");

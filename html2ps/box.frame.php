@@ -107,7 +107,8 @@ class FramesetBox extends GenericContainerBox {
   var $cols;
 
   function &create(&$root, &$pipeline) {
-    return new FramesetBox($root, $pipeline);
+    $box =& new FramesetBox($root, $pipeline);
+    return $box;
   }
 
   function FramesetBox(&$root, $pipeline) {
@@ -149,9 +150,18 @@ class FramesetBox extends GenericContainerBox {
 
       $frame =& $this->content[$i];
 
+      /**
+       * Depending on the source HTML, FramesetBox may contain some non-frame boxes; 
+       * we'll just ignore them
+       */
+      if (!is_a($frame, "FramesetBox") &&
+          !is_a($frame, "FrameBox")) {
+        continue;
+      };
+
       // Guess frame size and position
       $frame->put_left($this->get_left() + array_sum(array_slice($cols, 0, $cur_col)) + $frame->get_extra_left());
-      $frame->put_top($this->get_top() - array_sum(array_slice($rows, 0, $cur_row)) - $frame->get_extra_top());
+      $frame->put_top($this->get_top()   - array_sum(array_slice($rows, 0, $cur_row)) - $frame->get_extra_top());
 
       $frame->put_full_width($cols[$cur_col]);
       $frame->put_width_constraint(new WCConstant($frame->get_width()));

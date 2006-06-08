@@ -344,7 +344,7 @@ class InlineBox extends GenericInlineBox {
     return count($this->_lines);
   }
   
-  function reflow(&$parent, &$context) {
+  function reflow_static(&$parent, &$context) {
     GenericFormattedBox::reflow($parent, $context);
 
     // Note that inline boxes (actually SPANS)

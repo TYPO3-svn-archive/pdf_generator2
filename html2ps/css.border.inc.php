@@ -519,6 +519,7 @@ function css_border_width($value, $root) {
   push_border($border);
 }
 
-$g_border           = array(default_border());
+global $g_border;
+$g_border = array(default_border());
 
 ?>

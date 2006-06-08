@@ -180,6 +180,9 @@ function &create_pdf_box(&$root, &$pipeline) {
     case "-break":
       $box =& BRBox::create($pipeline); 
       break;
+    case "-body":
+      $box =& BodyBox::create($root, $pipeline);
+      break;
     case "-button":
       $box =& ButtonBox::create($root, $pipeline);
       break;      

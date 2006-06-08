@@ -35,47 +35,37 @@ class Image {
     // and second to actually create the image - PHP url wrappers do no caching 
     // at all
     //
-    // only do this for remote files that are prefixed with a protocol
+    $filename = Image::make_cache_filename($url);
+
+    // REQUIRES: PHP 4.3.0+
+    // we suppress warning messages, as missing image files will cause 'copy' to print 
+    // several warnings
+    // 
+    // @TODO: change to fetcher class call
+    //
+
+    $data = $pipeline->fetch($url);
+
+    if (is_null($data)) {
+      error_log("Cannot fetch image: ".$url);
+      return null; 
+    };
+
+    $file = fopen($filename, 'wb');
+    fwrite($file, $data->content);
+    fclose($file);
+    $pipeline->pop_base_url();
+
+//     if (!@copy($url, $filename)) { 
+//       error_log("Cannot fetch image: ".$url);
+//       return null; 
+//     };
     
-    if (substr($url,0,8)=='file:///') {
-      // we have a local file, just remember the file in the cache
-     	$filename=substr($url,8);
-	    $cached=0;
-    } else {
-	    $filename = Image::make_cache_filename($url);
-	
-	    // REQUIRES: PHP 4.3.0+
-	    // we suppress warning messages, as missing image files will cause 'copy' to print 
-	    // several warnings
-	    // 
-	    // @TODO: change to fetcher class call
-	    //
-	
-	    $data = $pipeline->fetch($url);
-	
-	    if (is_null($data)) {
-	      error_log("Cannot fetch image: ".$url);
-	      return null; 
-	    };
-	
-	    $file = fopen($filename, 'wb');
-	    fwrite($file, $data->content);
-	    fclose($file);
-	    $pipeline->pop_base_url();
-	    $cached=1;
-	
-	//     if (!@copy($url, $filename)) { 
-	//       error_log("Cannot fetch image: ".$url);
-	//       return null; 
-	//     };
-		}
-		    
     // register it in the cached objects array
     //
     // $g_image_cache[$url] = $filename;
     $g_image_cache[$url] = array('filename' => $filename,
-                                 'handle' => do_image_open($filename),
-                                 'cached' => $cached);
+                                 'handle' => do_image_open($filename));
     
     // return image
     //
@@ -139,8 +129,7 @@ class Image {
     global $g_image_cache;
 
     foreach ($g_image_cache as $key => $value) {
-    	// only delete remote files that have been cached
-      if ($value['cached']) unlink($value['filename']);
+      unlink($value['filename']);
     };
     $g_image_cache = array();
   }

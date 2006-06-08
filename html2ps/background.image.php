@@ -95,10 +95,10 @@ class BackgroundImage {
      * @link http://www.w3.org/TR/CSS21/box.html#box-padding-area CSS 2.1 definition of padding area
      */
     $driver->save();
-    $driver->moveto($box->get_left_padding(),  $box->get_top_padding());
-    $driver->lineto($box->get_right_padding(), $box->get_top_padding());
-    $driver->lineto($box->get_right_padding(), $box->get_bottom_padding());
-    $driver->lineto($box->get_left_padding(),  $box->get_bottom_padding());
+    $driver->moveto($box->get_left_background(),  $box->get_top_background());
+    $driver->lineto($box->get_right_background(), $box->get_top_background());
+    $driver->lineto($box->get_right_background(), $box->get_bottom_background());
+    $driver->lineto($box->get_left_background(),  $box->get_bottom_background());
     $driver->closepath();
     $driver->clip();
 
@@ -114,8 +114,8 @@ class BackgroundImage {
     /**
      * Get dimensions of the rectangle to be filled with the background image
      */
-    $padding_width  = $box->get_width()  + $box->get_padding_left() + $box->get_padding_right();
-    $padding_height = $box->get_height() + $box->get_padding_top()  + $box->get_padding_bottom();
+    $padding_width  = $box->get_right_background() - $box->get_left_background();
+    $padding_height = $box->get_top_background() - $box->get_bottom_background();
 
     /**
      * Calculate the vertical offset from the top padding edge to the background image top edge using current 
@@ -159,8 +159,8 @@ class BackgroundImage {
        * 'background-repeat: no-repeat' case; no tiling at all
        */
       $driver->image($this->_image, 
-                     $box->get_left_padding() + $x_offset, 
-                     $box->get_top_padding() - $image_height - $y_offset, 
+                     $box->get_left_background() + $x_offset, 
+                     $box->get_top_background() - $image_height - $y_offset, 
                      px2pt(1));
       break;
     case BR_REPEAT_X:
@@ -168,10 +168,10 @@ class BackgroundImage {
        * 'background-repeat: repeat-x' case; horizontal tiling
        */
       $driver->image_rx($this->_image, 
-                        $box->get_left_padding() + $x_offset, 
-                        $box->get_top_padding() - $image_height - $y_offset, 
+                        $box->get_left_background() + $x_offset, 
+                        $box->get_top_background() - $image_height - $y_offset, 
                         $image_width,
-                        $box->get_right_padding(),
+                        $box->get_right_background(),
                         $x_offset, 
                         $y_offset,
                         px2pt(1));
@@ -181,10 +181,10 @@ class BackgroundImage {
        * 'background-repeat: repeat-y' case; vertical tiling
        */
       $driver->image_ry($this->_image, 
-                        $box->get_left_padding() + $x_offset, 
-                        $box->get_top_padding() - $image_height - $y_offset, 
+                        $box->get_left_background() + $x_offset, 
+                        $box->get_top_background() - $image_height - $y_offset, 
                         $image_height, 
-                        $box->get_bottom_padding(), 
+                        $box->get_bottom_background(), 
                         $x_offset,
                         $y_offset,
                         px2pt(1));
@@ -194,12 +194,12 @@ class BackgroundImage {
        * 'background-repeat: repeat' case; full tiling
        */
       $driver->image_rx_ry($this->_image, 
-                           $box->get_left_padding() + $x_offset, 
-                           $box->get_top_padding() - $image_height + $y_offset, 
+                           $box->get_left_background() + $x_offset, 
+                           $box->get_top_background() - $image_height + $y_offset, 
                            $image_width,
                            $image_height,
-                           $box->get_right_padding(),
-                           $box->get_bottom_padding(),
+                           $box->get_right_background(),
+                           $box->get_bottom_background(),
                            $x_offset, 
                            $y_offset, 
                            px2pt(1));

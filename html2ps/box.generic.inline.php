@@ -1,6 +1,57 @@
 <?php
 class GenericInlineBox extends GenericContainerBox {
 
+  // @todo this code is duplicated in box.block.php
+  //
+  function reflow(&$parent, &$context) {
+    switch ($this->position) {
+    case POSITION_STATIC:
+      return $this->reflow_static($parent, $context);
+
+    case POSITION_RELATIVE:
+      /**
+       * CSS 2.1:
+       * Once a box has been laid out according to the normal flow or floated, it may be shifted relative 
+       * to this position. This is called relative positioning. Offsetting a box (B1) in this way has no
+       * effect on the box (B2) that follows: B2 is given a position as if B1 were not offset and B2 is 
+       * not re-positioned after B1's offset is applied. This implies that relative positioning may cause boxes
+       * to overlap. However, if relative positioning causes an 'overflow:auto' box to have overflow, the UA must
+       * allow the user to access this content, which, through the creation of scrollbars, may affect layout.
+       * 
+       * @link http://www.w3.org/TR/CSS21/visuren.html#x28 CSS 2.1 Relative positioning
+       */
+
+      $this->reflow_static($parent, $context);
+
+      /**
+       * Note that percentage positioning values are ignored for relative positioning
+       */
+
+      /**
+       * Check if 'top' value is percentage
+       */
+      if ($this->top[1]) { 
+        $top = 0;
+      } else {
+        $top = $this->top[0];
+      }
+
+      /**
+       * Offset the box according to the calculated 'left' and 'top' values
+       */
+      $left = $this->get_css_left_value();
+      if ($this->left[1]) {
+        $left_offset = 0;
+      } else {
+        $left_offset = $left[0];
+      };
+
+      $this->offset($left_offset,-$top);
+
+      return;
+    }
+  }
+
   // Checks if current inline box should cause a line break inside the parent box
   //
   // @param $parent reference to a parent box

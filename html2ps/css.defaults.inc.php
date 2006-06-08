@@ -1,6 +1,7 @@
 <?php
 // $Header$
 
+global $g_css_defaults;
 $g_css_defaults = array(
                         array(array(SELECTOR_SEQUENCE, array(array(SELECTOR_TAG, "a"),
                                                              array(SELECTOR_PSEUDOCLASS_LINK))),
@@ -10,13 +11,13 @@ $g_css_defaults = array(
                         array(array(SELECTOR_TAG, "applet") ,   array("display" => "none")),
                         array(array(SELECTOR_TAG, "area") ,     array("display" => "none")),
                         array(array(SELECTOR_TAG, "b") ,        array("font-weight" => "bold")),
-                        array(array(SELECTOR_TAG, "body"),      array("line-height" => "1.1",
-                                                                      "border" => "none")),
                         array(array(SELECTOR_TAG, "big"),       array("font-size" => "1.2em")),
                         array(array(SELECTOR_TAG, "blockquote"),array("display" => "block", 
                                                                       "margin" => "1em 40px")),
-                        array(array(SELECTOR_TAG, "body"),      array("display" => "block", 
-                                                                      "padding" => "8px")),
+                        array(array(SELECTOR_TAG, "body"),      array("display" => "-body", 
+                                                                      "margin" => "8px",
+                                                                      "line-height" => "1.1",
+                                                                      "border" => "none")),
                         array(array(SELECTOR_TAG, "center"),    array("display" => "block", 
                                                                       "text-align" => "center",
                                                                       "-align" => "center")),
@@ -180,8 +181,8 @@ $g_css_defaults = array(
                         array(array(SELECTOR_TAG, "sub"),       array("display" => "inline", 
                                                                       "font-size" => "50%", 
                                                                       "vertical-align" => "sub")),
-                        array(array(SELECTOR_TAG, "table"),     array("display" => "table", 
-                                                                      "overflow" => "hidden")),
+                        array(array(SELECTOR_TAG, "table"),     array("display" => "table",
+                                                                      "line-height" => 1.1)),
                         array(array(SELECTOR_TAG, "textarea"),  array("display" => "-textarea",
                                                                       "border" => "solid black 2px",
                                                                       "padding" => "3px", 
@@ -264,6 +265,7 @@ for ($ctr = 0; $ctr < count($g_css_defaults); $ctr++) {
   $g_css_defaults[$ctr][3] = $ctr;
 };
 
+global $g_css_defaults_obj;
 $g_css_defaults_obj = new CSSObject;
 foreach ($g_css_defaults as $rule) {
   $g_css_defaults_obj->add_rule($rule, new Pipeline());

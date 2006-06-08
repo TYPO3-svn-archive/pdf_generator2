@@ -271,6 +271,19 @@ if (!class_exists('FPDF')) {
       $l = $handler->links[$this->link];
       $h = isset($handler->OrientationChanges[$l[0]]) ? $wPt : $hPt;
 
+      /**
+       * Sometimes hyperlinks may refer to pages NOT present in PDF document
+       * Example: a very long frame content; it it trimmed to one page, as 
+       * framesets newer take more than one frame. A link targe which should be rendered
+       * on third page without frames will be never rendered at all. 
+       * 
+       * In this case we should disable link at all to prevent error from appearing
+       */
+
+      if (!isset($handler->_pages[$l[0]-1])) {
+        return "";
+      }
+
       $content = $handler->_dictionary(array(
                                              'Type'    => "/Annot",
                                              'Subtype' => "/Link",
@@ -2633,6 +2646,7 @@ if (!class_exists('FPDF')) {
         // Output annotation object for this page
         $annotations = $this->_pages[$n-1]->annotations;
         $size = count($annotations);
+
         for ($j=0; $j<$size; $j++) {
           $annotations[$j]->out($this);
         };

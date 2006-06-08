@@ -80,7 +80,7 @@ class TextBox extends GenericInlineBox {
     return $this->get_full_width();
   }
 
-  function reflow(&$parent, &$context) {  
+  function reflow_static(&$parent, &$context) {  
     // Check if we need a line break here (possilble several times in a row, if we
     // have a long word and a floating box intersecting with this word
     // 

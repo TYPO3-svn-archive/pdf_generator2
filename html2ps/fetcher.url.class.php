@@ -205,7 +205,20 @@ class FetcherUrl extends Fetcher {
 
     $this->url = $url;
 
-    $parts = parse_url($this->url);
+    $parts = @parse_url($this->url);
+
+    /**
+     * If an malformed URL have been specified, add a message to the log file and 
+     * continue processing (as such URLs may be found in otherwise good HTML file - 
+     * for example, invalid image or CSS reference)
+     */
+    if ($parts == false) {
+      error_log(sprintf("The URL '%s' could not be parsed", $this->url));
+
+      $this->content = "";
+      $this->code = HTTP_OK;
+      return true;
+    };
     
     /**
      * Setup default values

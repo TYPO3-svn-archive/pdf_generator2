@@ -216,12 +216,13 @@ class GenericFormattedBox extends GenericBox {
 
     // 'left'
     $handler = get_css_handler('left');
-    $value = $handler->get();
-    $this->left = $value;
+    $this->left = $handler->get();
+    if (!is_null($this->left)) { $this->left = punits2pt($this->left, $base_font_size); };
 
     // 'top'
     $handler = get_css_handler('top');
     $this->top = $handler->get();
+    if (!is_null($this->top)) { $this->top = punits2pt($this->top, $base_font_size); };
 
     // 'bottom'
     // TODO: automatic height calculation
@@ -993,5 +994,10 @@ class GenericFormattedBox extends GenericBox {
   }
 
   function pre_reflow_images() {}
+
+  function get_left_background()   { return $this->get_left_padding();   }
+  function get_right_background()  { return $this->get_right_padding();  }
+  function get_top_background()    { return $this->get_top_padding();    }
+  function get_bottom_background() { return $this->get_bottom_padding(); }
 }
 ?>

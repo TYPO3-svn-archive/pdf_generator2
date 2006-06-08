@@ -9,6 +9,23 @@ class TableCellBox extends GenericContainerBox {
   var $_suppress_first;
   var $_suppress_last;
 
+  function show(&$driver) {
+//     $driver->save();
+
+//     $driver->moveto($this->get_left(),  $this->get_top());
+//     $driver->lineto($this->get_right(), $this->get_top());
+//     $driver->lineto($this->get_right(), $this->get_bottom());
+//     $driver->lineto($this->get_left(),  $this->get_bottom());
+//     $driver->closepath();
+//     $driver->clip();
+
+    $status = parent::show($driver);
+
+//     $driver->restore();
+
+    return $status;
+  }
+
   function is_fake() {
     return false;
   }

@@ -21,6 +21,8 @@ class WCNone {
 
   function copy() { return new WCNone(); }
   function units2pt($base) { return; }
+
+  function is_null() { return true; }
 }
 
 class WCConstant {
@@ -43,6 +45,8 @@ class WCConstant {
   function units2pt($base) { 
     $this->width = units2pt($this->width, $base); 
   }
+
+  function is_null() { return false; }
 }
 
 class WCFraction {
@@ -71,5 +75,7 @@ class WCFraction {
 
   function copy() { return new WCFraction($this->fraction); }
   function units2pt($base) { }
+
+  function is_null() { return false; }
 }
 ?>

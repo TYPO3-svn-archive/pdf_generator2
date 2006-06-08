@@ -81,7 +81,7 @@ class HCConstraint {
 //     return $box->parent->_height_constraint->applicable($box->parent);
   }
    
-  function _fix_value($value, &$box, $default) {
+  function _fix_value($value, &$box, $default, $no_table_recursion) {
     // A percentage or immediate value?
     if ($value[1]) {
       // CSS 2.1: The percentage  is calculated with respect to the height of the generated box's containing block.
@@ -115,10 +115,13 @@ class HCConstraint {
       };
 
       if (is_a($box->parent,"TableCellBox")) {
-        $rhc = $box->parent->parent->get_rhc($box->parent->row);
-        if ($rhc->is_null()) { return $default; };
-
-        return $rhc->apply($box->parent->get_height(), $box);
+        if (!$no_table_recursion) {
+          $rhc = $box->parent->parent->get_rhc($box->parent->row);
+          if ($rhc->is_null()) { return $default; };
+          return $rhc->apply($box->parent->get_height(), $box, true) * $value[0] / 100;
+        } else {
+          return $box->parent->parent->get_height() * $value[0] / 100;
+        };
       };
 
       return $box->parent->get_height() * $value[0] / 100;
@@ -169,27 +172,27 @@ class HCConstraint {
     $this->max = $max;
   }
 
-  function apply_min($value, &$box) {
+  function apply_min($value, &$box, $no_table_recursion) {
     if ($this->min === null) {
       return $value;
     } else {
-      return max($this->_fix_value($this->min, $box, $value), $value);
+      return max($this->_fix_value($this->min, $box, $value, $no_table_recursion), $value);
     }
   }
 
-  function apply_max($value, &$box) {
+  function apply_max($value, &$box, $no_table_recursion) {
     if ($this->max === null) {
       return $value;
     } else {
-      return min($this->_fix_value($this->max, $box, $value), $value);
+      return min($this->_fix_value($this->max, $box, $value, $no_table_recursion), $value);
     }
   }
 
-  function apply($value, &$box) {
+  function apply($value, &$box, $no_table_recursion = false) {
     if ($this->constant !== null) {
-      $height = $this->_fix_value($this->constant, $box, $value);
+      $height = $this->_fix_value($this->constant, $box, $value, $no_table_recursion);
     } else {
-      $height =  $this->apply_min($this->apply_max($value, $box), $box);
+      $height =  $this->apply_min($this->apply_max($value, $box, $no_table_recursion), $box, $no_table_recursion);
     }
 
     // Table cells contained in tables with border-collapse: separate

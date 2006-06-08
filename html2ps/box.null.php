@@ -22,7 +22,7 @@ class NullBox extends GenericInlineBox {
     return true;
   }
 
-  function reflow(&$parent, &$context) {
+  function reflow_static(&$parent, &$context) {
     // Move current "box" to parent current coordinates. It is REQUIRED, 
     // as some other routines uses box coordinates.
     $this->put_left($parent->get_left());

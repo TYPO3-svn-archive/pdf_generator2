@@ -103,6 +103,7 @@ class CSSObject {
   }
 }
 
+global $g_css_handlers, $g_css;
 $g_css_handlers = array();
 $g_css          = array();
 

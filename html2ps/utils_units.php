@@ -56,6 +56,17 @@ function units_mul($value, $koeff) {
                  $units);
 }
 
+function punits2pt($value, $font_size) {
+  $value = trim($value);
+
+  // Check if current value is percentage
+  if (substr($value, strlen($value)-1, 1) === "%") {
+    return array((float)$value, true);
+  } else {
+    return array(units2pt($value, $font_size), false);
+  }
+}
+
 function units2pt($value, $font_size = null) {
   $units = substr($value, strlen($value)-2,2);
   switch ($units) {

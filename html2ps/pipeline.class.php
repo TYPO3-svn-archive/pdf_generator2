@@ -43,6 +43,7 @@ require_once('font_factory.class.php');
 
 require_once('box.br.php');
 require_once('box.block.php');
+require_once('box.body.php');
 require_once('box.block.inline.php');
 require_once('box.button.php');
 require_once('box.button.submit.php');
@@ -405,11 +406,7 @@ class Pipeline {
       $data = $this->fetchers[$i]->get_data($data_id);
 
       if ($data != null) {
-        if ($data_id=='') {
-          $this->push_base_url($this->fetchers[$i]->get_base_url());
-        } else {
-          $this->push_base_url($data_id);
-        }
+        $this->push_base_url($this->fetchers[$i]->get_base_url());
         
         return $data;
       };

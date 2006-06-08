@@ -50,7 +50,7 @@ class WhitespaceBox extends TextBox {
   // callers of reflow should take this into account and possilby check for this 
   // after reflow returns. This can be detected by UID change.
   // 
-  function reflow(&$parent, &$context) {  
+  function reflow_static(&$parent, &$context) {  
     // Check if there are any boxes in parent's line box
     if ($parent->line_box_empty()) {
       // The very first whitespace in the line box should not affect neither height nor baseline of the line box;

@@ -34,41 +34,41 @@ class OutputDriverGeneric extends OutputDriver {
     return $this->error_message;
   }
 
- /**
-  * Checks if a given box should be drawn on the current page.
-  * Basically, box should be drawn if its top or bottom edge is "inside" the page "viewport"
-  *
-  * @param GenericBox $box Box we're using for check
-  * @return boolean flag indicating of any part of this box should be placed on the current page
-  */
+  /**
+   * Checks if a given box should be drawn on the current page.
+   * Basically, box should be drawn if its top or bottom edge is "inside" the page "viewport"
+   * 
+   * @param GenericBox $box Box we're using for check
+   * @return boolean flag indicating of any part of this box should be placed on the current page
+   */
   function contains(&$box) {
-   /**
-    * These two types of boxes are not visual and
-    * may have incorrect position
-    */
+    /**
+     * These two types of boxes are not visual and 
+     * may have incorrect position
+     */
     if (is_a($box, "TableSectionBox")) { return true; };
     if (is_a($box, "TableRowBox")) { return true; };
 
-   $top    = round($box->get_top(),2);
-   $bottom = round($box->get_bottom(),2);
+    $top    = round($box->get_top(),2);
+    $bottom = round($box->get_bottom(),2);
 
-   /**
-    * Note:
-    *
-    * Y-axis is directed to the top
-    *
-    * Y-coordinate of bottom page edge = $offset
-    * Y-coordinate of bottom edge of "viewport" = $offset + mm2pt($this->media->margins['bottom'])
-    *
-    * Y-coordinate of top page edge = $offset + mm2pt($this->media->height())
-    * Y-coordinate of top page edge = $offset + mm2pt($this->media->height()) - mm2pt($this->media->margins['top'])
-    */
+    /**
+     * Note: 
+     *
+     * Y-axis is directed to the top
+     *
+     * Y-coordinate of bottom page edge = $offset
+     * Y-coordinate of bottom edge of "viewport" = $offset + mm2pt($this->media->margins['bottom'])
+     *
+     * Y-coordinate of top page edge = $offset + mm2pt($this->media->height())
+     * Y-coordinate of top page edge = $offset + mm2pt($this->media->height()) - mm2pt($this->media->margins['top'])
+     */
 
-   $vp_top    = round($this->offset + mm2pt($this->media->height() - $this->media->margins['top']),2);
-   $vp_bottom = round($this->offset + mm2pt($this->media->margins['bottom']),2);
-           
-   return
-     ($bottom < $vp_top) && ($top > $vp_bottom);
+    $vp_top    = round($this->offset + mm2pt($this->media->height() - $this->media->margins['top']),2);
+    $vp_bottom = round($this->offset + mm2pt($this->media->margins['bottom']),2);
+            
+    return ($top > $vp_bottom && 
+            $bottom <= $vp_top); 
   }
 
   function default_encoding() {

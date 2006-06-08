@@ -12,12 +12,14 @@ class FlowViewport {
     $this->height = 0;
   }
 
-  function create(&$box) {
+  function &create(&$box) {
     $viewport = new FlowViewport;
     $viewport->left   = $box->get_left_padding();
     $viewport->top    = $box->get_top_padding();
     $viewport->width  = $box->get_width() + $box->padding->left->value + $box->padding->right->value;
     $viewport->height = $box->get_height() + $box->padding->top->value + $box->padding->bottom->value;
+
+    return $viewport;
   }
 
   function get_left() { return $this->left; }

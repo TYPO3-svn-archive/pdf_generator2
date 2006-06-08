@@ -1,6 +1,7 @@
 <?php
 // $Header$
 
+global $g_tag_attrs;
 $g_tag_attrs = array(
                      /**
                       * Attribute handlers applicable to all tags
@@ -65,7 +66,8 @@ $g_tag_attrs = array(
                                         ),
                      'hr'      => array(
                                         'align' => 'attr_self_align',
-                                        'width' => 'attr_width'
+                                        'width' => 'attr_width',
+                                        'color' => 'attr_hr_color'
                                         ),
                      'input'   => array(
                                         'name'  => 'attr_input_name'
@@ -79,7 +81,7 @@ $g_tag_attrs = array(
                                         ),
                      'img'     => array(
                                         'width'  => 'attr_width',
-                                        'height' => 'attr_height',
+                                        'height' => 'attr_height_required',
                                         'border' => 'attr_border',
                                         'hspace' => 'attr_hspace',
                                         'vspace' => 'attr_vspace',
@@ -254,22 +256,22 @@ function attr_body_link_after_styles(&$root, &$pipeline) {};
 function attr_body_link_after(&$root, &$pipeline) {};
 
 function attr_body_topmargin_before(&$root, &$pipeline) {
-  $handler =& get_css_handler('padding-top');
+  $handler =& get_css_handler('margin-top');
   $handler->css((int)$root->get_attribute("topmargin")."px",$pipeline);
 }
 function attr_body_topmargin_after_styles(&$root, &$pipeline) {};
 function attr_body_topmargin_after(&$root, &$pipeline) {};
 
 function attr_body_leftmargin_before(&$root, &$pipeline) {
-  $handler =& get_css_handler('padding-left');
+  $handler =& get_css_handler('margin-left');
   $handler->css((int)$root->get_attribute("leftmargin")."px",$pipeline);
 }
 function attr_body_leftmargin_after_styles(&$root, &$pipeline) {};
 function attr_body_leftmargin_after(&$root, &$pipeline) {};
 
 function attr_body_marginheight_before(&$root, &$pipeline) {
-  $h_top    =& get_css_handler('padding-top');
-  $h_bottom =& get_css_handler('padding-bottom');
+  $h_top    =& get_css_handler('margin-top');
+  $h_bottom =& get_css_handler('margin-bottom');
 
   $top      = $h_top->get();
 
@@ -279,8 +281,8 @@ function attr_body_marginheight_after_styles(&$root, &$pipeline) {};
 function attr_body_marginheight_after(&$root, &$pipeline) {};
 
 function attr_body_marginwidth_before(&$root, &$pipeline) {
-  $h_left  =& get_css_handler('padding-left');
-  $h_right =& get_css_handler('padding-right');
+  $h_left  =& get_css_handler('margin-left');
+  $h_right =& get_css_handler('margin-right');
 
   $left = $h_left->get();
 
@@ -421,6 +423,11 @@ function attr_border_before(&$root, &$pipeline) {
   $border['top']['width']    = $width . "px";
   $border['bottom']['width'] = $width . "px";
   
+  $border['left']['style']   = BS_SOLID;
+  $border['right']['style']  = BS_SOLID;
+  $border['top']['style']    = BS_SOLID;
+  $border['bottom']['style'] = BS_SOLID;
+
   pop_border();
   push_border($border); 
 }
@@ -709,5 +716,15 @@ function attr_textarea_cols_before(&$root, &$pipeline) {
 }
 function attr_textarea_cols_after_styles(&$root, &$pipeline) {}
 function attr_textarea_cols_after(&$root, &$pipeline) {}
+
+/**
+ * HR-specific attributes
+ */
+function attr_hr_color_before(&$root, &$pipeline) {
+  css_border_color($root->get_attribute("color"),$root); 
+}
+function attr_hr_color_after_styles(&$root, &$pipeline) {}
+function attr_hr_color_after(&$root, &$pipeline) {}
+
 
 ?>

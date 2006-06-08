@@ -5,11 +5,11 @@ class PreTreeFilterHeaderFooter extends PreTreeFilter {
 
   function PreTreeFilterHeaderFooter($header_html, $footer_html) {
     if (trim($header_html) != "") {
-      $this->header_html    = "<body style='position: fixed; width: 100%; left: 0; top: -1.5em; text-align: center;'>".trim($header_html)."</body>";
+      $this->header_html    = "<body style='position: fixed; background-color: red; margin: 0; padding: 0; width: 100%; left: 0; top: -1.5em; text-align: center;'>".trim($header_html)."</body>";
     };
 
     if (trim($footer_html) != "") {
-      $this->footer_html    = "<body style='position: fixed; width: 100%; left: 0; bottom: -1.5em; text-align: center;'>".trim($footer_html)."</body>";
+      $this->footer_html    = "<body style='position: fixed; margin: 0; padding: 0; width: 100%; left: 0; bottom: -1.5em; text-align: center;'>".trim($footer_html)."</body>";
     };
   }
 

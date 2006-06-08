@@ -2,6 +2,7 @@
 // $Header$
 
 // Initialize utf-8 symbols to different encodings mappings
+global $g_utf8_to_encodings_mapping;
 $g_utf8_to_encodings_mapping = array();
 foreach (array_keys($g_utf8_converters) as $encoding) {
   $flipped = array_flip($g_utf8_converters[$encoding][0]);

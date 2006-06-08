@@ -101,10 +101,10 @@ class Background {
      */
     if (!$this->_color->transparent) {
       $this->_color->apply($driver);
-      $driver->moveto($box->get_left_padding(), $box->get_top_padding());
-      $driver->lineto($box->get_right_padding(), $box->get_top_padding());
-      $driver->lineto($box->get_right_padding(), $box->get_bottom_padding());
-      $driver->lineto($box->get_left_padding(), $box->get_bottom_padding());
+      $driver->moveto($box->get_left_background(), $box->get_top_background());
+      $driver->lineto($box->get_right_background(), $box->get_top_background());
+      $driver->lineto($box->get_right_background(), $box->get_bottom_background());
+      $driver->lineto($box->get_left_background(), $box->get_bottom_background());
       $driver->closepath();
       $driver->fill();
     };

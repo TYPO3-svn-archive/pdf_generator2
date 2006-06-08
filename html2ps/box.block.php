@@ -204,10 +204,15 @@ class BlockBox extends GenericContainerBox {
      * As sometimes left/right values may not be set, we need to use the "fit" width here.
      * If box have a width constraint, 'get_max_width' will return constrained value; 
      * othersise, an intrictic width will be returned. 
+     * 
+     * Note that get_max_width returns width _including_ external space line margins, borders and padding;
+     * as we're setting the "internal" - content width, we must subtract "extra" space width from the 
+     * value received
      *
      * @see GenericContainerBox::get_max_width()
      */
-    $this->put_width($this->get_max_width($context));
+
+    $this->put_width($this->get_max_width($context) - $this->_get_hor_extra());
     
     /**
      * Update the width, as it should be calculated based upon containing block width, not real parent.

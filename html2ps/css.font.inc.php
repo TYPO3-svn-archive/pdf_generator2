@@ -257,6 +257,7 @@ function css_font_weight($value, $root) {
   push_font_weight(parse_weight($value));
 }
 
+global $g_font_size, $g_font_weight, $g_font_style, $g_font_family;
 $g_font_size        = array(default_font_size());
 $g_font_weight      = array(WEIGHT_NORMAL);
 $g_font_style       = array(FS_NORMAL);

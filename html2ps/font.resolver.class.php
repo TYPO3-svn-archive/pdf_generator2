@@ -140,6 +140,7 @@ class FontResolver {
   function have_font_family($family) { return isset($this->families[$family]) or $this->have_alias($family); }
 }
 
+global $g_font_resolver, $g_font_resolver_pdf;
 $g_font_resolver = new FontResolver();
 $g_font_resolver_pdf = new FontResolver();
 

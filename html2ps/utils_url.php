@@ -23,8 +23,22 @@ function guess_url($path, $baseurl) {
   $base_host   = isset($data['host'])   ? $data['host']     : (isset($default_host[$base_scheme]) ? $default_host[$base_scheme] : "");
   $base_path   = isset($data['path'])   ? $data['path']     : "/";
 
-  if ($base_scheme == "file" && PHP_OS == "WINNT" && $base_path{0}!='/') {
-    $base_path = "/".$base_path;
+  /**
+   * Workaround: Some PHP versions do remove the leading slash from the 
+   * 'file://' URLs with empty host name, while some do not.
+   *
+   * An example of such URL is: file:///D:/path/dummy.html
+   * The path should be: /D:/path/dummy.html
+   * 
+   * Here we check if the leading slash is present and
+   * add it if it is missing.
+   */
+  if ($base_scheme == "file" && PHP_OS == "WINNT") {
+    if (strlen($base_path) > 0) {
+      if ($base_path{0} != "/") {
+        $base_path = "/".$base_path;
+      };
+    };
   };
 
   $base_user_pass = "";
@@ -32,9 +46,21 @@ function guess_url($path, $baseurl) {
     $base_user_pass = sprintf("%s:%s@", $base_user, $base_pass);
   } 
 
+  // 'Path' is starting at scheme?
+  if (substr($path,0,2) == "//") {
+    $guessed = $base_scheme . ':' . $path;
+
+    error_log(sprintf("Guessed: '%s'", $guessed));
+
+    return $guessed;
+  }
+
   // 'Path' is starting at root?
   if (substr($path,0,1) == "/") {
     $guessed = $base_scheme . '://' . $base_user_pass . $base_host . $base_port . $path;
+
+    error_log(sprintf("Guessed: '%s'", $guessed));
+
     return $guessed;
   };
 
@@ -45,6 +71,9 @@ function guess_url($path, $baseurl) {
     $base_path_dir = "";
   };
   $guessed = $base_scheme . '://' . $base_user_pass . $base_host . $base_port . $base_path_dir . '/' . $path;
+
+  error_log(sprintf("Guessed: '%s'", $guessed));
+
   return $guessed;
 };
 

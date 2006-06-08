@@ -21,6 +21,7 @@
 </li>
 <li><a href="#fonts">Fonts. National symbols.</a></li>
 <li><a href="#forms">Interactive forms.</a></li>
+<li><a href="#frames">Frames.</a></li>
 <li><a href="#misc">Miscellanous.</a></li>
 </ul>
 
@@ -136,6 +137,24 @@ Or CSS <em>page-break-after</em> property:
 </pre> 
 </dd>
 
+<dt><a name="headers-footers">How should I add headers or footers to generated Postscript / PDF files?</a></dt>
+<dd>
+You may use one of these two options:
+<ul>
+<li>Use blocks with 'position: fixed'. Pleas note that you probably want to 
+set 'top' and 'bottom' properties to negative values to avoid overlapping with
+main content; it is an expected behavior according to HTML/CSS standards. 
+(see also a simple <a href="samples/headfoot.html">sample</a>)</li>
+<li>Use &quot;Header&quot; and &quot;Footer&quot; options in web interface or 
+PreTreeFilterHeaderFooter filter in API</li>
+</ul>
+</dd>
+
+<dt><a name="hide-headers">I've added headers and footers to my HTML pages, but how I can prevent them from showing up in the browser?</a></dt>
+<dd>
+Use @media css rules setting 'display: none' or 'display: block' for header/footer blocks on different media.
+</dd>
+
 <dt><a name="hires-images"></a>Is there a possibility to create pdf documents with more than 72dpi using html2ps?</dt>
 <dd>You may make a page with high-resolution images and set their on-page height and width using 
 <code>height</code> and <code>width</code> attributes. 
@@ -197,6 +216,21 @@ update "fonts" (NOT "fonts-pdf") section to point to installed fonts, for exampl
 PDF interactive forms are not like HTML forms; you MUST modify the server-side script so it return FDF file 
 instead of normal HTML in this case.
 See <a href="http://partners.adobe.com/public/developer/pdf/index_reference.html" title="Opens PDF specifications download page at Adobe.com in new window">PDF Reference, v 1.6</a>, page 1026, par. 134 for futher information.
+Also, you may check <a href=""></a> for a brief outline of PDF forms.
+</dd>
+</dl>
+
+<h2><a name="frames"></a>Frames</h2>
+<dl>
+<dt>I have a page with frames containing a lot of text, but generated PDF contains only 1 page. Where's my content?</dt>
+<dd>
+As produced PDFs are static, you have no ways to scroll frame content. Thus, only initially visible frame content will be available. 
+It is a feature.
+</dd>
+<dt>Some links inside the frames are not active even when I enable &quot;Render Hyperlinks&quot; option.</dt>
+<dd>
+As was stated previously, script may render only a part of frame content. So, if rendered part contains a local hyperlink
+pointing to non-rendered part, this hyperlink will be disabled, as it points to nowhere.
 </dd>
 </dl>
 

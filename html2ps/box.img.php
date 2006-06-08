@@ -30,7 +30,7 @@ class GenericImgBox extends TextBox {
       $this->put_height($size);
     
       // Update baseline according to constrained image height
-      $this->default_baseline = $this->get_height();
+      $this->default_baseline = $this->get_full_height();
       break;
     case SCALE_HEIGHT:
       // Only 'height' attribute given
@@ -41,12 +41,12 @@ class GenericImgBox extends TextBox {
       $this->put_width($size);
       $this->put_width_constraint(new WCConstant($size));
 
-      $this->default_baseline = $this->get_height();
+      $this->default_baseline = $this->get_full_height();
       break;
     };
   }
 
-  function reflow(&$parent, &$context) {  
+  function reflow_static(&$parent, &$context) {  
     $this->pre_reflow_images();
     
     GenericFormattedBox::reflow($parent, $context);
@@ -101,17 +101,6 @@ class GenericImgBox extends TextBox {
     return;
   }
 
-  function scale2ps($scale) {
-    switch ($scale) {
-    case SCALE_NONE:
-      return "/none";
-    case SCALE_WIDTH:
-      return "/width";
-    case SCALE_HEIGHT:
-      return "/height";
-    }
-  }
-
   function show_fixed(&$driver) {
     return $this->show($driver);
   }
@@ -131,7 +120,7 @@ class BrokenImgBox extends GenericImgBox {
     $this->put_height($height);
     $this->alt = $alt;
 
-    $this->default_baseline = $this->get_height();
+    $this->default_baseline = $this->get_full_height();
 
     $this->src_height = $this->get_height();
     $this->src_width  = $this->get_width();
@@ -210,8 +199,11 @@ class ImgBox extends GenericImgBox {
     } else {
       $box =& new ImgBox($src_img);
 
+      $wc = $box->_width_constraint;
+      $hc = $box->get_height_constraint();
+
       // Proportional scaling 
-      if ($root->has_attribute('width') && !$root->has_attribute('height')) {
+      if ($hc->is_null() && !$wc->is_null()) {
         $box->scale = SCALE_WIDTH;
 
         // Only 'width' attribute given
@@ -222,9 +214,9 @@ class ImgBox extends GenericImgBox {
         $box->put_height($size);
         
         // Update baseline according to constrained image height
-        $box->default_baseline = $box->get_height();
+        $box->default_baseline = $box->get_full_height();
         
-      } elseif (!$root->has_attribute('width') && $root->has_attribute('height')) {
+      } elseif (!$hc->is_null() && $wc->is_null()) {
         $box->scale = SCALE_HEIGHT;
 
         // Only 'height' attribute given
@@ -235,7 +227,7 @@ class ImgBox extends GenericImgBox {
         $box->put_width($size);
         $box->put_width_constraint(new WCConstant($size));
         
-        $box->default_baseline = $box->get_height();
+        $box->default_baseline = $box->get_full_height();
       };
       
       return $box;
@@ -253,12 +245,8 @@ class ImgBox extends GenericImgBox {
     $this->image = $img;
 
     $this->put_width(px2pt(imagesx($img)));
-
-    $hc = $this->get_height_constraint();
-    if ($hc->is_null()) {
-      $this->put_height(px2pt(imagesy($img)));
-    };
-    $this->default_baseline = $this->get_height();
+    $this->put_height(px2pt(imagesy($img)));
+    $this->default_baseline = $this->get_full_height();
     
     $this->src_height = imagesx($img);
     $this->src_width  = imagesy($img);

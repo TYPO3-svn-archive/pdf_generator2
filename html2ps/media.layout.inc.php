@@ -52,7 +52,10 @@ class Media {
     $this->pixels  = 800;
   }
 
-  function PPM() { // Pixels per millimeter
+  /**
+   * Pixels per millimeter
+   */
+  function PPM() { 
     return $this->pixels / ($this->size['width'] - $this->margins['left'] - $this->margins['right']);
   }
 
